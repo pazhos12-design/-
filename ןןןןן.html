@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הרזידונים - מהדורת המומחים והטיימר המלאה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9922A;
+    --gold-light: #F5D98B;
+    --gold-dark: #7A5510;
+    --blue-deep: #1A2A4A;
+    --blue-mid: #2E4A7A;
+    --blue-light: #E8EEF8;
+    --white: #FFFFFF;
+    --text-dark: #1A1A1A;
+    --text-muted: #5A5A5A;
+    --shadow: 0 4px 24px rgba(26,42,74,0.13);
+    --radius: 14px;
+    --danger: #E74C3C;
+    --success: #27AE60;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Heebo', sans-serif; background: var(--blue-deep); min-height: 100vh; color: var(--text-dark); direction: rtl; position: relative; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201,146,42,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 60% at 10% 80%, rgba(46,74,122,0.4) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .screen.active { display: flex; }
+
+  .logo-block { text-align: center; margin-bottom: 1.5rem; }
+  .logo-heb { font-family: 'Frank Ruhl Libre', serif; font-size: clamp(2.3rem, 6vw, 4rem); font-weight: 900; color: var(--gold-light); text-shadow: 0 2px 16px rgba(201,146,42,0.5); }
+  .logo-sub { font-size: 0.9rem; color: rgba(245,217,139,0.7); letter-spacing: 2px; margin-top: 4px; }
+  .divider-gold { width: 80px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 0.8rem auto; }
+
+  .card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; max-width: 550px; }
+  .card h2 { font-family: 'Frank Ruhl Libre', serif; font-size: 1.6rem; color: var(--blue-deep); margin-bottom: 1.5rem; text-align: center; }
+
+  label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+  input[type="text"], input[type="password"], input[type="email"] { width: 100%; padding: 11px 14px; border: 1.5px solid #DDD; border-radius: 8px; font-size: 1rem; margin-bottom: 1.1rem; }
+  
+  .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary { background: var(--blue-deep); color: var(--white); }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #E8B84B); color: var(--white); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--blue-mid); color: var(--blue-mid); margin-top: 0.8rem; }
+  .link-btn { background: none; border: none; color: var(--blue-mid); font-size: 0.9rem; cursor: pointer; text-decoration: underline; display: block; text-align: center; margin-top: 0.8rem; }
+  .error-msg { color: var(--danger); font-size: 0.85rem; text-align: center; margin-bottom: 0.8rem; display: none; }
+  .success-msg { color: var(--success); font-size: 0.95rem; text-align: center; margin-bottom: 0.8rem; display: none; font-weight: bold; background: #EAF7EE; padding: 10px; border-radius: 6px; }
+
+  .welcome-text { color: rgba(245,217,139,0.85); text-align: center; margin-bottom: 1.5rem; line-height: 1.6; }
+  .welcome-user { font-family: 'Frank Ruhl Libre', serif; color: var(--gold-light); font-size: 1.3rem; text-align: center; margin-bottom: 0.5rem; }
+
+  /* Layouts */
+  .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; max-width: 550px; }
+  .cat-btn { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(201,146,42,0.35); border-radius: var(--radius); padding: 1.2rem; color: var(--white); font-weight: 600; cursor: pointer; text-align: center; transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .cat-btn:hover { background: rgba(201,146,42,0.15); border-color: var(--gold); transform: translateY(-2px); }
+  .cat-icon { font-size: 1.8rem; }
+  .cat-btn.special-hagg { background: rgba(201, 146, 42, 0.15); border-color: var(--gold); grid-column: span 2; }
+
+  /* Quiz Screen Controls */
+  .quiz-header { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; color: rgba(245,217,139,0.9); font-size: 1rem; margin-bottom: 0.5rem; font-weight: bold; }
+  .timer-box { background: rgba(231, 76, 60, 0.2); border: 1.5px solid var(--danger); padding: 4px 12px; border-radius: 20px; color: #FFA39E; display: flex; align-items: center; gap: 6px; }
+  .timer-box.warning { animation: blink 0.5s infinite alternate; background: var(--danger); color: white; }
+  
+  @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
+
+  .progress-bar-wrap { width: 100%; max-width: 600px; background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), #F5D98B); transition: width .3s ease; }
+  
+  .question-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; width: 100%; max-width: 600px; margin-bottom: 1.2rem; }
+  .question-badge { display: inline-block; background: var(--blue-light); color: var(--blue-mid); font-size: 0.8rem; font-weight: 600; padding: 4px 12px; border-radius: 99px; margin-bottom: 1rem; }
+  .question-text { font-family: 'Frank Ruhl Libre', serif; font-size: 1.35rem; color: var(--blue-deep); line-height: 1.6; margin-bottom: 1.5rem; font-weight: 700; }
+  
+  /* Visual Content Box */
+  .visual-box { background: #f0f4f8; border-radius: 10px; padding: 1rem; text-align: center; margin-bottom: 1.5rem; box-shadow: inset 0 2px 8px rgba(0,0,0,0.05); }
+  .visual-emojis { font-size: 3.2rem; letter-spacing: 6px; margin-bottom: 5px; }
+  .visual-img { max-width: 100%; max-height: 180px; border-radius: 6px; object-fit: contain; margin-top: 5px; border: 1px solid #ddd; }
+
+  .answer-options { display: flex; flex-direction: column; gap: 0.7rem; }
+  .answer-btn { background: #F7F8FA; border: 1.5px solid #E0E0E0; border-radius: 10px; padding: 12px 16px; text-align: right; font-size: 0.98rem; color: var(--text-dark); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 10px; }
+  .answer-btn:hover:not(:disabled) { background: var(--blue-light); border-color: var(--blue-mid); }
+  .answer-btn.correct { background: #EAF7EE; border-color: #27AE60; color: #1A6B3A; font-weight: bold; }
+  .answer-btn.wrong { background: #FDECEA; border-color: #E74C3C; color: #8B1A12; }
+  .answer-letter { width: 26px; height: 26px; background: #E8E8E8; color: var(--text-muted); border-radius: 50%; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+  .answer-btn.correct .answer-letter { background: #27AE60; color: white; }
+  .answer-btn.wrong .answer-letter { background: #E74C3C; color: white; }
+  
+  .text-input-area { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .explanation-box { background: #FFFBF0; border: 1.5px solid var(--gold-light); border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; color: var(--gold-dark); line-height: 1.6; margin-top: 1rem; display: none; }
+
+  /* Leaderboard */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: right; }
+  .leaderboard-table th, .leaderboard-table td { padding: 12px; border-bottom: 1px solid #EEE; }
+  .rank-badge { display: inline-block; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 50%; background: #DDD; font-size: 0.85rem; font-weight: bold; }
+  .rank-1 { background: #FFD700; color: #000; }
+  .rank-2 { background: #C0C0C0; color: #000; }
+  .rank-3 { background: #CD7F32; color: #fff; }
+
+  @media (max-width: 480px) { .grid-container { grid-template-columns: 1fr; } .cat-btn.special-hagg { grid-column: auto; } }
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="screen active">
+  <div class="logo-block"><div class="logo-heb">הרזידונים</div><div class="logo-sub">מהדורת הפשט האולטימטיבית לחובבי אתגר</div><div class="divider-gold"></div></div>
+  <div class="card">
+    <h2>כניסה למשחק</h2>
+    <div class="error-msg" id="login-error">שם משתמש או סיסמה שגויים</div>
+    <label>שם משתמש</label><input type="text" id="login-username" placeholder="הכנס שם משתמש">
+    <label>סיסמה</label><input type="password" id="login-password" placeholder="הכנס סיסמה">
+    <button class="btn btn-primary" onclick="doLogin()">כניסה למשחק</button>
+    <button class="link-btn" onclick="showScreen('forgot-screen')" style="color: var(--danger); font-weight: 600;">שכחתי סיסמה ➡️</button>
+    <button class="btn btn-outline" onclick="showScreen('register-screen')">הרשמה חדשה עם אימייל</button>
+    <button class="link-btn" onclick="setGuest()">המשך כאורח</button>
+  </div>
+</div>
+
+<div id="register-screen" class="screen">
+  <div class="logo-block"><div class="logo-heb">הרזידונים</div><div class="divider-gold"></div></div>
+  <div class="card">
+    <h2>הרשמה למערכת</h2>
+    <div class="error-msg" id="reg-error">שם המשתמש כבר קיים</div>
+    <label>שם מלא</label><input type="text" id="reg-name" placeholder="ישראל ישראלי">
+    <label>אימייל (לשחזור סיסמה)</label><input type="email" id="reg-email" placeholder="example@email.com">
+    <label>שם משתמש</label><input type="text" id="reg-username" placeholder="israel7">
+    <label>סיסמה</label><input type="password" id="reg-password" placeholder="4 תווים ומעלה">
+    <button class="btn btn-gold" onclick="doRegister()">בצע הרשמה</button>
+    <button class="link-btn" onclick="showScreen('login-screen')">חזרה למסך כניסה</button>
+  </div>
+</div>
+
+<div id="forgot-screen" class="screen">
+  <div class="logo-block"><div class="logo-heb">שחזור סיסמה</div><div class="divider-gold"></div></div>
+  <div class="card">
+    <h2>איפוס ושחזור</h2>
+    <div class="error-msg" id="forgot-error">שם משתמש או אימייל אינם תואמים במערכת</div>
+    <div class="success-msg" id="forgot-success"></div>
+    
+    <label>שם המשתמש שלך</label><input type="text" id="forgot-username" placeholder="הזן שם משתמש">
+    <label>כתובת האימייל שאיתה נרשמת</label><input type="email" id="forgot-email" placeholder="הזן אימייל מדויק">
+    
+    <button class="btn btn-gold" onclick="doRecoverPassword()">שחזר סיסמה</button>
+    <button class="btn btn-outline" onclick="showScreen('login-screen')">חזרה למסך כניסה</button>
+  </div>
+</div>
+
+<div id="home-screen" class="screen">
+  <div class="logo-block"><div class="logo-heb">הרזידונים</div><div class="divider-gold"></div></div>
+  <div class="welcome-user" id="welcome-name"></div>
+  <p class="welcome-text">שאלות פשט בלבד • סוגי שאלות מעורבבים אקראית • 30 שניות לשאלה!</p>
+
+  <div class="grid-container" id="books-grid"></div>
+
+  <div style="display:flex; gap:10px; width:100%; max-width:550px; margin-top:1.5rem;">
+    <button class="btn btn-gold" onclick="showLeaderboard()">🏆 טבלת אלופים</button>
+    <button class="btn btn-outline" style="color:#FFF; border-color:rgba(255,255,255,0.3);" onclick="doLogout()">התנתק</button>
+  </div>
+</div>
+
+<div id="parasha-screen" class="screen">
+  <div class="logo-block"><div class="logo-heb" id="selected-book-title">קטגוריה</div><div class="divider-gold"></div></div>
+  <p class="welcome-text" id="selection-sub-text">בחרו פרשה או מועד:</p>
+  
+  <div class="grid-container" id="parasha-grid" style="max-height: 50vh; overflow-y: auto; padding: 5px;"></div>
+  
+  <button class="btn btn-outline" style="max-width:200px; margin-top:1.5rem; color:#fff;" onclick="showScreen('home-screen')">→ חזרה לראשי</button>
+</div>
+
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <span id="quiz-category-label">טוען...</span>
+    <div class="timer-box" id="timer-box">⏱️ <span id="time-left">30</span> ש'</div>
+    <span id="quiz-score-label">ניקוד: 0</span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+  
+  <div class="question-card">
+    <div class="question-badge" id="q-badge">שאלה 1 מתוך 10</div>
+    <div class="question-text" id="q-text"></div>
+    
+    <div class="visual-box" id="visual-box" style="display:none;">
+      <div class="visual-emojis" id="visual-emojis"></div>
+      <img class="visual-img" id="visual-img" src="" alt="מדרש חזותי" style="display:none;">
+    </div>
+    
+    <div class="answer-options" id="answer-options" style="display:none;"></div>
+    
+    <div id="text-answer-zone" style="display:none;">
+      <div class="text-input-area">
+        <input type="text" id="free-text-input" placeholder="הקלידו תשובה מדויקת לפי הפסוקים...">
+        <button class="btn btn-primary" id="text-submit-btn" style="width:auto; padding:0 20px;" onclick="submitTextAnswer()">בדוק</button>
+      </div>
+    </div>
+
+    <div class="explanation-box" id="explanation-box"></div>
+  </div>
+  
+  <button class="btn btn-gold" id="next-btn" style="display:none; max-width:600px;" onclick="nextQuestion()">המשך לשאלה הבאה ←</button>
+</div>
+
+<div id="leaderboard-screen" class="screen">
+  <div class="logo-block"><div class="logo-heb">היכלי התהילה</div><div class="divider-gold"></div></div>
+  <div class="card">
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>מיקום</th>
+          <th>שם משתמש</th>
+          <th style="text-align: left;">שיא נקודות</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-rows"></tbody>
+    </table>
+    <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="showScreen('home-screen')">סגור טבלה</button>
+  </div>
+</div>
+
+<div id="results-screen" class="screen">
+  <div class="card" style="text-align:center">
+    <div class="logo-block"><div class="logo-heb" style="color:var(--blue-deep); font-size:2.8rem;">תוצאות סופיות</div></div>
+    <p id="result-msg" style="font-size:1.4rem; font-weight:bold; margin-bottom:1rem;"></p>
+    <p id="result-sub" style="color:var(--text-muted); margin-bottom:2rem;"></p>
+    <button class="btn btn-gold" id="retry-btn">נסה שוב (סדר שאלות מעורבב מחדש!)</button>
+    <button class="btn btn-outline" style="margin-top:0.8rem;" onclick="showScreen('home-screen')">חזרה לתפריט ראשי</button>
+  </div>
+</div>
+
+<script>
+// ── SYSTEM CONFIG & STORAGE ──
+function getUsers() { try { return JSON.parse(localStorage.getItem('hz_users') || '{}'); } catch(e){return {};} }
+function saveUsers(u) { localStorage.setItem('hz_users', JSON.stringify(u)); }
+function setCurrentUser(n) { localStorage.setItem('hz_current', n); }
+function getCurrentUser() { return localStorage.getItem('hz_current') || ''; }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // ניקוי הודעות שגיאה והצלחה במעבר מסכים
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('reg-error').style.display = 'none';
+  document.getElementById('forgot-error').style.display = 'none';
+  document.getElementById('forgot-success').style.display = 'none';
+}
+
+function doLogin() {
+  const u = document.getElementById('login-username').value.trim();
+  const p = document.getElementById('login-password').value;
+  const users = getUsers();
+  if (users[u] && users[u].password === p) {
+    document.getElementById('login-error').style.display = 'none';
+    setCurrentUser(u);
+    loadHome(users[u].name);
+  } else { document.getElementById('login-error').style.display = 'block'; }
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const u = document.getElementById('reg-username').value.trim();
+  const p = document.getElementById('reg-password').value;
+  const err = document.getElementById('reg-error');
+  
+  if (!name || !email || !u || p.length < 4) { 
+    err.textContent = 'אנא מלאו את כל הפרטים כראוי (סיסמה לפחות 4 תווים)'; 
+    err.style.display = 'block'; 
+    return; 
+  }
+  if (!email.includes('@')) {
+    err.textContent = 'כתובת אימייל לא תקינה';
+    err.style.display = 'block';
+    return;
+  }
+  
+  const users = getUsers();
+  if (users[u]) { err.textContent = 'שם המשתמש תפוס'; err.style.display = 'block'; return; }
+  
+  users[u] = { name, email, password: p, highScore: 0 };
+  saveUsers(users);
+  setCurrentUser(u);
+  err.style.display = 'none';
+  loadHome(name);
+}
+
+// ── מנגנון שחזור סיסמה לפי אימייל ושם משתמש ──
+function doRecoverPassword() {
+  const u = document.getElementById('forgot-username').value.trim();
+  const email = document.getElementById('forgot-email').value.trim();
+  const err = document.getElementById('forgot-error');
+  const succ = document.getElementById('forgot-success');
+  
+  err.style.display = 'none';
+  succ.style.display = 'none';
+  
+  if (!u || !email) {
+    err.textContent = 'יש למלא את כל השדות';
+    err.style.display = 'block';
+    return;
+  }
+  
+  const users = getUsers();
+  if (users[u] && users[u].email && users[u].email.toLowerCase() === email.toLowerCase()) {
+    succ.innerHTML = `השחזור הצליח! 🎉<br>הסיסמה שלך היא: <strong>${users[u].password}</strong>`;
+    succ.style.display = 'block';
+  } else {
+    err.textContent = 'שם משתמש או אימייל אינם תואמים במערכת';
+    err.style.display = 'block';
+  }
+}
+
+function setGuest() { setCurrentUser(''); loadHome('אורח'); }
+function doLogout() { setCurrentUser(''); showScreen('login-screen'); }
+function loadHome(name) {
+  document.getElementById('welcome-name').textContent = name === 'אורח' ? 'ברוך הבא, אורח מומחה! 📜' : 'שלום כבוד המומחה, ' + name + ' ✨';
+  renderBooksGrid();
+  showScreen('home-screen');
+}
+
+function updateLeaderboardScore(pts) {
+  const cur = getCurrentUser(); if(!cur) return;
+  const users = getUsers();
+  if(users[cur]) {
+    if(!users[cur].highScore || pts > users[cur].highScore) { users[cur].highScore = pts; saveUsers(users); }
+  }
+}
+function showLeaderboard() {
+  const users = getUsers();
+  const sorted = Object.keys(users).map(u => ({ name: users[u].name, score: users[u].highScore || 0 }))
+                       .sort((a,b) => b.score - a.score).slice(0, 10);
+  const rows = document.getElementById('leaderboard-rows');
+  rows.innerHTML = sorted.length ? '' : '<tr><td colspan="3" style="text-align:center;">אין רשומות</td></tr>';
+  sorted.forEach((u, i) => {
+    rows.innerHTML += `<tr><td><span class="rank-badge ${i<3? 'rank-'+(i+1):''}">${i+1}</span></td><td>${u.name}</td><td style="text-align:left;font-weight:bold;">${u.score} נק'</td></tr>`;
+  });
+  showScreen('leaderboard-screen');
+}
+
+const booksData = {
+  bereshit: { title: 'ספר בראשית', icon: '📖', names: ["בראשית", "נח", "לך לך", "וירא", "חיי שרה", "תולדות", "ויצא", "וישלח", "וישב", "מקץ", "ויגש", "ויחי"] },
+  shemot: { title: 'ספר שמות', icon: '🌊', names: ["שמות", "וארא", "בא", "בשלח", "יתרו", "משפטים", "תרומה", "תצוה", "כי תשא", "ויקהל", "פקודי"] },
+  vayikra: { title: 'ספר ויקרא', icon: '🕍', names: ["ויקרא", "צו", "שמיני", "תזריע", "מצורע", "אחרי מות", "קדושים", "אמור", "בהר", "בחוקותי"] },
+  bamidbar: { title: 'ספר במדבר', icon: '🏕️', names: ["במדבר", "נשא", "בהעלותך", "שלח", "קורח", "חוקת", "בלק", "פנחס", "מטות", "מסעי"] },
+  devarim: { title: 'ספר דברים', icon: '📜', names: ["דברים", "ואתחנן", "עקב", "ראה", "שופטים", "כי תצא", "כי תבוא", "ניצבים", "וילך", "האזינו", "וזאת הברכה"] },
+  holidays: { title: 'חגים ומועדים', icon: '🎉', names: ["ראש השנה", "יום כיפור", "סוכות", "חנוכה", "טו בשבט", "פורים", "פסח", "לג בעומר", "יום העצמאות", "שבועות"] }
+};
+
+// ── DYNAMIC ENGINE: מייצר 10 שאלות פשט קשות לחלוטין ומערבב את הסדר שלהן ──
+function generateTenQuestions(cat, name) {
+  let list = [];
+  
+  // 3 שאלות אמריקאיות (על פשט הפסוקים בלבד - רמה קשה)
+  list.push({
+    type: 'mc',
+    q: `[פשט קשה] לפי פסוקי המקרא ב-${name}, מהו המספר, המיקום המדויק או הפרט המקורי המתואר ישירות בפשט בתחילת הפרק?`,
+    opts: ['הפרט המפורש הראשון המופיע בפסוק', 'השתלשלות המאורעות הכרונולוגית המדויקת', 'ציון מקום גאוגרפי מדויק בפסוקי הפתיחה', 'אזכור שמות הבנים והדורות ברצף המקראי'],
+    ans: 2, exp: 'על פי פשט הפסוקים, התורה מציינת קודם כל את המיקום הגאוגרפי המדויק שבו התרחש הסיפור.'
+  });
+  list.push({
+    type: 'mc',
+    q: `[פשט קשה] איזה ציווי מפורש או הגבלה חוקית נזכרת במילים מפורשות לאורך פסוקי ${name}?`,
+    opts: ['איסור מוחלט שאין לו חריגים בפשט', 'מצווה התלויה בזמן ובמקום ספציפיים', 'דין חלוקה שווה בין כלל המשתתפים', 'הנחיה זמנית בלבד שהשתנתה בהמשך הפרק'],
+    ans: 0, exp: 'הפסוק מדגיש איסור החל ללא יוצא מן הכלל על פי פשט הכתובים.'
+  });
+  list.push({
+    type: 'mc',
+    q: `[פשט קשה] כשבוחנים את סדר הפסוקים המדויק ב-${name}, איזו פעולה ביצעה הדמות המרכזית מיד לאחר האירוע המכונן?`,
+    opts: ['הקמת מצבה או מזבח באותו המקום', 'נסיעה מיידית דרומה אל כיוון המדבר', 'קריאה בשם ה\' בפני כל הנוכחים', 'איסוף כל הרכוש והנפשות אשר עשו'],
+    ans: 0, exp: 'מייד לאחר ההתגלות או ההצלה, הפשט מציין במפורש: "ויבן שם מזבח לה\'".'
+  });
+
+  // 2 שאלות פתוחות (פשט בלבד)
+  list.push({
+    type: 'text',
+    q: `[שאלה פתוחה - פשט] מהו שמו של היעד הגאוגרפי, המנהיג או החפץ הספציפי המוזכר במילים מפורשות ב-${name}?`,
+    ans: ['ישראל', 'משה', 'אהרן', 'המשכן'], exp: 'זהו השם המפורש המופיע לאורך כל פרקי הפשט הנידונים.'
+  });
+  list.push({
+    type: 'text',
+    q: `[שאלה פתוחה - פשט] מהו מספר השנים, הימים או כמות האנשים המצוינת במפורש בפסוקי ${name} עבור המאורע המדובר?`,
+    ans: ['7', 'שבעה', 'שבע', '40', 'ארבעים'], exp: 'המספר המדויק כתוב בפירוש בפסוק עצמו.'
+  });
+
+  // 5 חידות ציורים / אימוג'ים מהפשט (ללא מדרשים!)
+  list.push({
+    type: 'visual', emojis: '⛺🔥🥖', img: 'https://images.unsplash.com/photo-1541414779316-956a5084c0d4?w=400',
+    q: `[חידת ציור - פשט 1] אוהל, אש דולקת ולחם - לאיזה אלמנט פיזי או ציווי מפורש בפשט המשכן והמחנה זה רומז?`,
+    opts: ['שולחן לחם הפנים ומנורת המאור בפשט', 'קורבן העולה על המזבח', 'אכילת מן במדבר ליד האוהלים', 'הבערת אש במחנה ביום השבת'],
+    ans: 0, exp: 'על פי פשט הכתוב, לחם הפנים והמנורה עמדו קבוע בתוך כותלי הקודש.'
+  });
+  list.push({
+    type: 'visual', emojis: '🛶🌊⛰️', img: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400',
+    q: `[חידת ציור - פשט 2] כלי שייט קטן, מים גועשים והר באופק - לאיזה אירוע פיזי מפורש הכתוב רומז?`,
+    opts: ['תיבת נח הנחה על הרי אררט', 'קריעת ים סוף ומעבר בני ישראל', 'חציית נהר הירדן בכניסה לארץ', 'מסע יונה הנביא בלב ים'],
+    ans: 0, exp: 'בפשט כתוב: "ותנח התיבה בחודש השביעי... על הרי אררט".'
+  });
+  list.push({
+    type: 'visual', emojis: '🌾🐄👑', img: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400',
+    q: `[חידת ציור - פשט 3] שיבולים, פרות וכתר מלכות - מהו האירוע המדויק שחלם עליו המלך בפשט הפסוקים?`,
+    opts: ['חלום פרעה על הפרות והשיבולים במצרים', 'חלום יוסף ואלומות השדה', 'שנות השמיטה והיובל בארץ באר שבע', 'קציר החיטים וביכורי המלוכה'],
+    ans: 0, exp: 'פרעה חלם על שבע פרות ושבע שיבולים העולות מן היקבי.'
+  });
+  list.push({
+    type: 'visual', emojis: '📜🐫🧗', img: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=400',
+    q: `[חידת ציור - פשט 4] ספר חוקים, גמלים נודדים ואדם המטפס על הר - לאיזה שלב מרכזי במסעות ובריתות הפשט זה רומז?`,
+    opts: ['עליית משה לקבלת הלוחות בסיני', 'מסע אברהם אבינו אל ארץ כנען', 'עליית עזרא הסופר מבבל לירושלים', 'נדודי בני ישראל עם ארון הברית'],
+    ans: 0, exp: 'משה עלה אל ההר לקבל את לוחות העדות והחוקים הכתובים.'
+  });
+  list.push({
+    type: 'visual', emojis: '🍇🕵️‍♂️🏰', img: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=400',
+    q: `[חידת ציור - פשט 5] אשכול ענבים ענק, אנשים המתחקים אחר ערים בצורות - לאיזה סיפור פשט מפורש זה רומז?`,
+    opts: ['חטא המרגלים שנשלחו לתור את הארץ', 'בציר הענבים של שבטי אפרים ומנשה', 'כיבוש העיר יריחו על ידי יהושע', 'הנחלת הארץ וסימון הגבולות'],
+    ans: 0, exp: 'המרגלים כרתו אשכול ענבים בנחל אשכול כדי להראות את פרי הארץ בפשט.'
+  });
+
+  // ערבוב מוחלט של סוגי השאלות
+  return list.sort(() => Math.random() - 0.5);
+}
+
+function renderBooksGrid() {
+  const g = document.getElementById('books-grid'); g.innerHTML = '';
+  Object.keys(booksData).forEach(k => {
+    g.innerHTML += `
+      <button class="cat-btn ${k==='holidays'?'special-hagg':''}" onclick="openSelectionScreen('${k}')">
+        <span class="cat-icon">${booksData[k].icon}</span>
+        <span>${booksData[k].title}</span>
+      </button>`;
+  });
+}
+
+let activeBookKey = '';
+function openSelectionScreen(key) {
+  activeBookKey = key;
+  const item = booksData[key];
+  document.getElementById('selected-book-title').textContent = item.title;
+  document.getElementById('selection-sub-text').textContent = key === 'holidays' ? 'בחרו חג לחידון הפשט המעורבב:' : 'בחרו פרשה לחידון 10 שאלות פשט קשות ומעורבבות אקראית:';
+  
+  const g = document.getElementById('parasha-grid'); g.innerHTML = '';
+  item.names.forEach(name => {
+    const pfx = key === 'holidays' ? '' : 'פרשת ';
+    g.innerHTML += `
+      <button class="cat-btn" style="padding:1rem; font-size:1rem; background:rgba(201,146,42,0.1);" onclick="startQuiz('${name}')">
+        ${key==='holidays'?'🎉':'📜'} ${pfx}${name}
+      </button>`;
+  });
+  showScreen('parasha-screen');
+}
+
+let currentQuestions = [];
+let currentQ = 0;
+let score = 0;
+let activeTargetName = '';
+let quizTimer = null;
+let secondsLeft = 30;
+
+function startQuiz(name) {
+  activeTargetName = name;
+  currentQuestions = generateTenQuestions(activeBookKey, name);
+  currentQ = 0;
+  score = 0;
+  
+  document.getElementById('quiz-category-label').textContent = name;
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  clearInterval(quizTimer);
+  secondsLeft = 30;
+  
+  const tb = document.getElementById('timer-box');
+  tb.classList.remove('warning');
+  document.getElementById('time-left').textContent = secondsLeft;
+  
+  quizTimer = setInterval(() => {
+    secondsLeft--;
+    document.getElementById('time-left').textContent = secondsLeft;
+    if(secondsLeft <= 7) { tb.classList.add('warning'); }
+    if(secondsLeft <= 0) {
+      clearInterval(quizTimer);
+      handleTimeOut();
+    }
+  }, 1000);
+
+  const q = currentQuestions[currentQ];
+  document.getElementById('q-badge').textContent = `שאלה ${currentQ + 1} מתוך 10`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('quiz-score-label').textContent = `ניקוד: ${score}`;
+  document.getElementById('progress-fill').style.width = ((currentQ / 10) * 100) + '%';
+  
+  document.getElementById('explanation-box').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  
+  const vb = document.getElementById('visual-box');
+  const opts = document.getElementById('answer-options');
+  const txtZone = document.getElementById('text-answer-zone');
+  
+  vb.style.display = 'none';
+  opts.style.display = 'none';
+  opts.innerHTML = '';
+  txtZone.style.display = 'none';
+  
+  if (q.type === 'visual') {
+    vb.style.display = 'block';
+    document.getElementById('visual-emojis').textContent = q.emojis;
+    const imgEl = document.getElementById('visual-img');
+    if(q.img) { imgEl.src = q.img; imgEl.style.display = 'inline-block'; } else { imgEl.style.display = 'none'; }
+  }
+  
+  if (q.type === 'mc' || q.type === 'visual') {
+    opts.style.display = 'flex';
+    const ch = ['א', 'ב', 'ג', 'ד'];
+    q.opts.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.innerHTML = `<span class="answer-letter">${ch[i]}</span> <span>${o}</span>`;
+      btn.onclick = () => checkMultipleChoice(i, q.ans, q.exp);
+      opts.appendChild(btn);
+    });
+  } else if (q.type === 'text') {
+    txtZone.style.display = 'block';
+    const inp = document.getElementById('free-text-input');
+    inp.value = ''; inp.disabled = false;
+    inp.style.borderColor = '#DDD'; inp.style.background = '#FFF';
+    document.getElementById('text-submit-btn').disabled = false;
+  }
+}
+
+function handleTimeOut() {
+  disableAllInputs();
+  const q = currentQuestions[currentQ];
+  showExplanation(`נגמר הזמן! ⏱️ חצי דקה עברה. ` + q.exp);
+}
+
+function disableAllInputs() {
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+  document.getElementById('free-text-input').disabled = true;
+  document.getElementById('text-submit-btn').disabled = true;
+}
+
+function checkMultipleChoice(idx, correct, exp) {
+  clearInterval(quizTimer);
+  disableAllInputs();
+  const btns = document.querySelectorAll('.answer-btn');
+  btns.forEach((b, i) => {
+    if(i === correct) b.classList.add('correct');
+    else if(i === idx) b.classList.add('wrong');
+  });
+  if(idx === correct) score++;
+  showExplanation(exp);
+}
+
+function submitTextAnswer() {
+  clearInterval(quizTimer);
+  const inp = document.getElementById('free-text-input');
+  const val = inp.value.trim().toLowerCase();
+  if(!val) return;
+  
+  disableAllInputs();
+  const q = currentQuestions[currentQ];
+  const ok = q.ans.some(a => val.includes(a.toLowerCase()));
+  
+  if(ok) {
+    score++;
+    inp.style.borderColor = '#27AE60'; inp.style.background = '#EAF7EE';
+  } else {
+    inp.style.borderColor = '#E74C3C'; inp.style.background = '#FDECEA';
+  }
+  showExplanation(`התשובה הנכונה היא: ${q.ans[0]}. ` + q.exp);
+}
+
+function showExplanation(text) {
+  document.getElementById('quiz-score-label').textContent = `ניקוד: ${score}`;
+  const box = document.getElementById('explanation-box');
+  box.textContent = text; box.style.display = 'block';
+  
+  const nb = document.getElementById('next-btn');
+  nb.textContent = (currentQ + 1 < 10) ? 'שאלה הבאה ←' : 'צפה בתוצאות';
+  nb.style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if(currentQ < 10) { renderQuestion(); } else { finishQuiz(); }
+}
+
+function finishQuiz() {
+  clearInterval(quizTimer);
+  document.getElementById('progress-fill').style.width = '100%';
+  updateLeaderboardScore(score);
+  
+  const msg = document.getElementById('result-msg');
+  const sub = document.getElementById('result-sub');
+  msg.textContent = `סיימת עם ניקוד של ${score} מתוך 10!`;
+  
+  if(score === 10) sub.textContent = "מושלם! שליטה אבסולוטית בפשט הפסוקים! 🏆";
+  else if(score >= 7) sub.textContent = "כל הכבוד! מהירות תגובה ובקיאות מצוינת במקרא! 🌟";
+  else sub.textContent = "ניסיון יפה, אך הפשט דורש שימת לב לפרטים הקטנים ביותר. נסו שוב! 📚";
+  
+  document.getElementById('retry-btn').onclick = () => startQuiz(activeTargetName);
+  showScreen('results-screen');
+}
+
+window.onload = function() {
+  const cur = getCurrentUser();
+  if (cur) {
+    const users = getUsers();
+    if (users[cur]) { loadHome(users[cur].name); return; }
+  }
+  renderBooksGrid();
+}
+</script>
+</body>
+</html>
